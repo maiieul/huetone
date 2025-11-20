@@ -14,11 +14,12 @@ export type DrawChartProps = {
   showColors?: boolean
   showP3?: boolean
   showRec2020?: boolean
+  isP3?: boolean
 }
 
 const getSrgbPixel = (): TPixelData => [255, 255, 255, 255]
-const getP3pixel = (x: number, y: number): TPixelData => [198, 198, 198, 255]
-const getRec2020pixel = (x: number, y: number): TPixelData => [
+const getP3pixel = (_x: number, _y: number): TPixelData => [198, 198, 198, 255]
+const getRec2020pixel = (_x: number, _y: number): TPixelData => [
   171, 171, 171, 255,
 ]
 
@@ -31,6 +32,7 @@ function drawLuminosityChart(props: DrawChartProps) {
     showColors,
     showP3,
     showRec2020,
+    isP3,
     widthFrom = 0,
     widthTo = width,
   } = props
@@ -53,11 +55,9 @@ function drawLuminosityChart(props: DrawChartProps) {
 
     for (let y = height; y >= 0; y--) {
       let l = sycledLerp(ranges.l.max, ranges.l.min, y / height)
-      const { r, g, b, within_sRGB, within_P3, within_Rec2020 } = lch2color([
-        l,
-        c,
-        h,
-      ])
+      const { r, g, b, p3, within_sRGB, within_P3, within_Rec2020 } = lch2color(
+        [l, c, h]
+      )
       const displayable = showRec2020
         ? within_Rec2020
         : showP3
@@ -67,19 +67,35 @@ function drawLuminosityChart(props: DrawChartProps) {
       if (!displayable && hadColors) break
 
       const dx = x - widthFrom
-      if (within_sRGB) {
-        hadColors = true
-        pixels.setPixel(dx, y, showColors ? [r, g, b, 255] : getSrgbPixel())
-      } else if (showP3 && within_P3) {
-        pixels.setPixel(dx, y, getP3pixel(dx, y))
-      } else if (showRec2020 && within_Rec2020) {
-        // const v = ((Math.sin((x + y * -0.8) * 1.5) + 1) / 2) * 55 + 200
-        pixels.setPixel(dx, y, getRec2020pixel(dx, y))
+      if (isP3) {
+        if (within_P3) {
+          hadColors = true
+          const [r, g, b] = p3
+          pixels.setPixel(
+            dx,
+            y,
+            showColors
+              ? [r, g, b, 255]
+              : within_sRGB
+              ? getSrgbPixel()
+              : getP3pixel(dx, y)
+          )
+        }
+      } else {
+        if (within_sRGB) {
+          hadColors = true
+          pixels.setPixel(dx, y, showColors ? [r, g, b, 255] : getSrgbPixel())
+        } else if (showP3 && within_P3) {
+          pixels.setPixel(dx, y, getP3pixel(dx, y))
+        } else if (showRec2020 && within_Rec2020) {
+          // const v = ((Math.sin((x + y * -0.8) * 1.5) + 1) / 2) * 55 + 200
+          pixels.setPixel(dx, y, getRec2020pixel(dx, y))
+        }
       }
     }
   }
 
-  return bakeBitmap(pixels)
+  return bakeBitmap(pixels, isP3)
 }
 
 function drawChromaChart(props: DrawChartProps) {
@@ -91,6 +107,7 @@ function drawChromaChart(props: DrawChartProps) {
     showColors,
     showP3,
     showRec2020,
+    isP3,
     widthFrom = 0,
     widthTo = width,
   } = props
@@ -116,11 +133,9 @@ function drawChromaChart(props: DrawChartProps) {
 
     for (let y = height; y >= 0; y--) {
       let c = sycledLerp(ranges.c.max, ranges.c.min, y / height)
-      const { r, g, b, within_sRGB, within_P3, within_Rec2020 } = lch2color([
-        l,
-        c,
-        h,
-      ])
+      const { r, g, b, p3, within_sRGB, within_P3, within_Rec2020 } = lch2color(
+        [l, c, h]
+      )
       const displayable = showRec2020
         ? within_Rec2020
         : showP3
@@ -130,17 +145,32 @@ function drawChromaChart(props: DrawChartProps) {
       if (!displayable) break
 
       const dx = x - widthFrom
-      if (within_sRGB) {
-        pixels.setPixel(dx, y, showColors ? [r, g, b, 255] : getSrgbPixel())
-      } else if (showP3 && within_P3) {
-        pixels.setPixel(dx, y, getP3pixel(dx, y))
-      } else if (showRec2020 && within_Rec2020) {
-        pixels.setPixel(dx, y, getRec2020pixel(dx, y))
+      if (isP3) {
+        if (within_P3) {
+          const [r, g, b] = p3
+          pixels.setPixel(
+            dx,
+            y,
+            showColors
+              ? [r, g, b, 255]
+              : within_sRGB
+              ? getSrgbPixel()
+              : getP3pixel(dx, y)
+          )
+        }
+      } else {
+        if (within_sRGB) {
+          pixels.setPixel(dx, y, showColors ? [r, g, b, 255] : getSrgbPixel())
+        } else if (showP3 && within_P3) {
+          pixels.setPixel(dx, y, getP3pixel(dx, y))
+        } else if (showRec2020 && within_Rec2020) {
+          pixels.setPixel(dx, y, getRec2020pixel(dx, y))
+        }
       }
     }
   }
 
-  return bakeBitmap(pixels)
+  return bakeBitmap(pixels, isP3)
 }
 
 function drawHueChart(props: DrawChartProps) {
@@ -152,6 +182,7 @@ function drawHueChart(props: DrawChartProps) {
     showColors,
     showP3,
     showRec2020,
+    isP3,
     widthFrom = 0,
     widthTo = width,
   } = props
@@ -172,28 +203,47 @@ function drawHueChart(props: DrawChartProps) {
 
     for (let y = height; y >= 0; y--) {
       let h = sycledLerp(ranges.h.max, ranges.h.min, y / height)
-      const { r, g, b, within_sRGB, within_P3, within_Rec2020 } = lch2color([
-        l,
-        c,
-        h,
-      ])
+      const { r, g, b, p3, within_sRGB, within_P3, within_Rec2020 } = lch2color(
+        [l, c, h]
+      )
 
       const dx = x - widthFrom
-      if (within_sRGB) {
-        pixels.setPixel(dx, y, showColors ? [r, g, b, 255] : getSrgbPixel())
-      } else if (showP3 && within_P3) {
-        pixels.setPixel(dx, y, getP3pixel(dx, y))
-      } else if (showRec2020 && within_Rec2020) {
-        pixels.setPixel(dx, y, getRec2020pixel(dx, y))
+      if (isP3) {
+        if (within_P3) {
+          const [r, g, b] = p3
+          pixels.setPixel(
+            dx,
+            y,
+            showColors
+              ? [r, g, b, 255]
+              : within_sRGB
+              ? getSrgbPixel()
+              : getP3pixel(dx, y)
+          )
+        }
+      } else {
+        if (within_sRGB) {
+          pixels.setPixel(dx, y, showColors ? [r, g, b, 255] : getSrgbPixel())
+        } else if (showP3 && within_P3) {
+          pixels.setPixel(dx, y, getP3pixel(dx, y))
+        } else if (showRec2020 && within_Rec2020) {
+          pixels.setPixel(dx, y, getRec2020pixel(dx, y))
+        }
       }
     }
   }
 
-  return bakeBitmap(pixels)
+  return bakeBitmap(pixels, isP3)
 }
 
-async function bakeBitmap(pixels: Pixels) {
-  const imageData = new ImageData(pixels.array, pixels.width, pixels.height)
+async function bakeBitmap(pixels: Pixels, isP3?: boolean) {
+  const imageData = new ImageData(
+    // @ts-ignore
+    pixels.array,
+    pixels.width,
+    pixels.height,
+    isP3 ? { colorSpace: 'display-p3' } : undefined
+  )
 
   // Safari has very sketchy ImageBitmap implementation
   // eslint-disable-next-line no-restricted-globals

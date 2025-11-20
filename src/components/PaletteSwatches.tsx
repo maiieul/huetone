@@ -81,9 +81,11 @@ export const PaletteSwatches: FC = () => {
                 onClick={() => setSelected([hueId, toneId])}
                 style={{
                   background: !bPress
-                    ? color.hex
-                    : colorSpace.lch2color([color.l, 0, 0]).hex,
-                  color: getMostContrast(color.hex, ['#000', '#fff']),
+                    ? color.css
+                    : colorSpace.lch2color([color.l, 0, 0]).css,
+                  // @ts-ignore
+                  '--contrast': getMostContrast(color.hex, ['#000', '#fff']),
+                  color: 'var(--contrast)',
                   borderRadius: isSelected ? 'var(--radius-m)' : 0,
                   transform: isSelected ? 'scale(1.25)' : 'scale(1)',
                   zIndex: isSelected ? 3 : 0,

@@ -59,7 +59,8 @@ export function Scale({
           <ValueInput
             key={i}
             type="number"
-            color={color.hex}
+            color={color.css}
+            $hex={color.hex}
             title={color[channel].toFixed(ranges[channel].precision)}
             min={ranges[channel].min}
             max={ranges[channel].max}
@@ -120,7 +121,7 @@ export function Scale({
               style={{
                 // @ts-ignore
                 '--contrast': contrast,
-                '--bg': showColors ? contrast : color.hex,
+                '--bg': showColors ? contrast : color.css,
               }}
               canvasHeight={height}
               left={sectionWidth * i + sectionWidth / 2}
@@ -134,8 +135,9 @@ export function Scale({
 
 const ValueInput = styled.input<{
   color: string
+  $hex: string
 }>`
-  --c-contrasting: ${p => getMostContrast(p.color, ['black', 'white'])};
+  --c-contrasting: ${p => getMostContrast(p.$hex, ['black', 'white'])};
   background-color: ${p => p.color};
   color: var(--c-contrasting);
   text-align: center;

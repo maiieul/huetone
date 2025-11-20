@@ -41,7 +41,9 @@ export type TColor = {
   r: number
   g: number
   b: number
+  p3: [number, number, number]
   hex: string
+  css: string
   within_sRGB: boolean
   within_P3: boolean
   within_Rec2020: boolean

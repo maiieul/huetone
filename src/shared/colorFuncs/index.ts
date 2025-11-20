@@ -50,15 +50,25 @@ function colorSpaceMaker(colorSpace: TLchModel): TColorSpace {
     const within_sRGB = isWithinGamut(srgb)
     const [r, g, b] = srgb.map(c => clamp(c * 255, 0, 255))
     const [l, c, h] = lch
+    const p3 = xyz2p3(xyz).map(c => clamp(c * 255, 0, 255)) as [number, number, number]
 
     // prettier-ignore
     return {
       mode: name,
       l, c, h,
       r, g, b,
+      p3,
       get hex () {
         const rgb = within_sRGB ? srgb : forceIntoGamut(lch, lch2rgb)
         return srgb2hex(rgb)
+      },
+      get css () {
+        if (within_sRGB) return this.hex
+        if (this.within_P3) {
+          const [r, g, b] = p3
+          return `color(display-p3 ${r / 255} ${g / 255} ${b / 255})`
+        }
+        return this.hex
       },
       within_sRGB,
       get within_P3 () {
@@ -78,13 +88,16 @@ function colorSpaceMaker(colorSpace: TLchModel): TColorSpace {
     if (!rgb) return null
     const [l, c, h] = rgb2lch(rgb)
     const [r, g, b] = rgb.map(c => clamp(c * 255, 0, 255))
+    const p3 = xyz2p3(rgb2xyz(rgb)).map(c => clamp(c * 255, 0, 255)) as [number, number, number]
 
     // prettier-ignore
     return {
       mode: name,
       l, c, h,
       r, g, b,
+      p3,
       hex: srgb2hex(rgb),
+      css: srgb2hex(rgb),
       within_sRGB: true,
       within_P3: true,
       within_Rec2020: true,

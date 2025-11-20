@@ -78,8 +78,9 @@ function offscreenRenderFallback(
   to: number,
   height: number
 ) {
+  const colorSpace = ctx.getContextAttributes()?.colorSpace || 'srgb'
   const offscreenCanvas = document.createElement('canvas')
-  const offscreenContext = offscreenCanvas.getContext('2d')
+  const offscreenContext = offscreenCanvas.getContext('2d', { colorSpace })
   if (!offscreenContext) return
 
   offscreenCanvas.width = image.width

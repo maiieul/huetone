@@ -48,6 +48,13 @@ export function Canvas(props: {
     renderStrategy = 'concurrent',
   } = props
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const isP3 = useMemo(() => {
+    // Only check once as it shouldn't change during session usually, and window is available in main thread
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(color-gamut: p3)').matches
+    }
+    return false
+  }, [])
 
   const debouncedRepaint = useMemo(() => {
     const debounceRate = RENDER_STRATEGY_DEBOUNCE[renderStrategy]
@@ -56,7 +63,8 @@ export function Canvas(props: {
     return debounce((colors: TColor[], mode: spaceName) => {
       console.log('🖼 Repaint canvas')
       const canvas = canvasRef.current
-      const ctx = canvas?.getContext('2d')
+      // @ts-ignore - colorSpace is valid in modern browsers
+      const ctx = canvas?.getContext('2d', { colorSpace: isP3 ? 'display-p3' : 'srgb' })
       if (!ctx) return
 
       const drawPartialImage: DrawPartialFn = (image, from, to) => {
@@ -70,6 +78,7 @@ export function Canvas(props: {
         mode,
         colors,
         ...settings,
+        isP3,
         spread: renderSpread,
         scale: SUPERSAMPLING_RATIO,
       }
@@ -81,7 +90,7 @@ export function Canvas(props: {
         drawPartialImage
       )
     }, debounceRate)
-  }, [channel, height, settings, width, renderStrategy])
+  }, [channel, height, settings, width, renderStrategy, isP3])
 
   useEffect(() => {
     debouncedRepaint(colors, mode)
