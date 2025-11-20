@@ -44,6 +44,7 @@ export function parseHexPalette(
   const toneNames = Array.from(Array(maxTones)).map(
     (v, idx) => hexPalette?.tones?.[idx] || (idx * 100).toString()
   )
+// Revert previous speculative change to clean up
   const colors = hues.map(hue =>
     toneNames.map(
       (v, idx) => hex2color(hue.colors[idx]) || (hex2color('#000') as TColor)
@@ -92,7 +93,7 @@ export function exportToHexPalette(palette: Palette): HexPalette {
     name: palette.name,
     hues: palette.hues.map((hue, i) => ({
       name: hue,
-      colors: palette.colors[i].map(color => color.hex),
+      colors: palette.colors[i].map(color => color.css),
     })),
     tones: [...palette.tones],
   }

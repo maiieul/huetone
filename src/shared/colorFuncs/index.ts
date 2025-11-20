@@ -10,6 +10,7 @@ import {
   xyz2rgb,
   rgb2xyz,
   xyz2p3,
+  p32xyz,
   xyz2rec2020,
 } from './utils'
 
@@ -50,7 +51,11 @@ function colorSpaceMaker(colorSpace: TLchModel): TColorSpace {
     const within_sRGB = isWithinGamut(srgb)
     const [r, g, b] = srgb.map(c => clamp(c * 255, 0, 255))
     const [l, c, h] = lch
-    const p3 = xyz2p3(xyz).map(c => clamp(c * 255, 0, 255)) as [number, number, number]
+    const p3 = xyz2p3(xyz).map(c => clamp(c * 255, 0, 255)) as [
+      number,
+      number,
+      number
+    ]
 
     // prettier-ignore
     return {
@@ -81,6 +86,27 @@ function colorSpaceMaker(colorSpace: TLchModel): TColorSpace {
   }
 
   function hex2color(hex: string): TColor | null {
+    // Handle CSS color(display-p3 ...) format
+    if (hex.startsWith('color(display-p3')) {
+      const match = hex.match(
+        /color\(display-p3\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\)/
+      )
+      if (match) {
+        const p3: RGB = [
+          parseFloat(match[1]),
+          parseFloat(match[2]),
+          parseFloat(match[3]),
+        ]
+
+        // Convert P3 to XYZ, then to LCH, then use lch2color to get full object
+        // We need to export p32xyz from utils or construct it here
+        // In utils we have exposed `p32xyz` now.
+        const xyz = p32xyz(p3)
+        const lch = xyz2lch(xyz)
+        return lch2color(lch)
+      }
+    }
+
     if (!chroma.valid(hex)) return null
     const rgb = chroma(hex)
       .rgb()
@@ -88,7 +114,11 @@ function colorSpaceMaker(colorSpace: TLchModel): TColorSpace {
     if (!rgb) return null
     const [l, c, h] = rgb2lch(rgb)
     const [r, g, b] = rgb.map(c => clamp(c * 255, 0, 255))
-    const p3 = xyz2p3(rgb2xyz(rgb)).map(c => clamp(c * 255, 0, 255)) as [number, number, number]
+    const p3 = xyz2p3(rgb2xyz(rgb)).map(c => clamp(c * 255, 0, 255)) as [
+      number,
+      number,
+      number
+    ]
 
     // prettier-ignore
     return {

@@ -8,12 +8,15 @@ import {
   XYZ_to_lin_2020,
   XYZ_to_lin_P3,
   XYZ_to_lin_sRGB,
+  lin_P3_to_XYZ as lin_P3_to_XYZ_math,
+  lin_P3,
 } from './colorMath/conversions'
 
 // XYZ conversions
 export const xyz2rgb = (xyz: XYZ) => gam_sRGB(XYZ_to_lin_sRGB(xyz))
 export const rgb2xyz = (rgb: RGB) => lin_sRGB_to_XYZ(lin_sRGB(rgb))
 export const xyz2p3 = (xyz: XYZ) => gam_P3(XYZ_to_lin_P3(xyz))
+export const p32xyz = (p3: RGB) => lin_P3_to_XYZ_math(lin_P3(p3))
 export const xyz2rec2020 = (xyz: XYZ) => gam_2020(XYZ_to_lin_2020(xyz))
 
 export function isWithinGamut(rgb: RGB) {

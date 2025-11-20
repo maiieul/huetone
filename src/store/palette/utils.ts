@@ -51,6 +51,8 @@ export const initialPalette: Palette = {
         g: 0,
         b: 0,
         hex: '#000000',
+        css: '#000000',
+        p3: [0, 0, 0],
         l: 0,
         c: 0,
         h: 0,

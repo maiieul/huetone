@@ -20,7 +20,10 @@ const presets = PRESETS.map(p => ({ ...p, isPreset: true }))
 // PALETTE INDEX
 
 /** Index of selected palette */
-export const paletteIdStore = atom<number>(0)
+export const paletteIdStore = persistentAtom<number>('paletteId', 0, {
+  encode: String,
+  decode: Number,
+})
 
 // —————————————————————————————————————————————————————————————————————————————
 // PALETTE LIST
@@ -58,7 +61,11 @@ export const paletteStore = map<Palette>(initialPalette)
 
 onMount(paletteStore, () => {
   const list = paletteListStore.get()
-  const idx = paletteIdStore.get()
+  let idx = paletteIdStore.get()
+  if (!list[idx]) {
+    idx = 0
+    paletteIdStore.set(0)
+  }
   paletteStore.set(parseHexPalette(list[idx], spaceName.oklch))
 })
 
