@@ -19,6 +19,7 @@ export { renameTone } from './paletteReducers'
 export { setColor } from './paletteReducers'
 export { setToneLuminance } from './paletteReducers'
 export { setHueHue } from './paletteReducers'
+export { setHueChroma } from './paletteReducers'
 export { clampColorsToRgb } from './paletteReducers'
 export { convertToMode } from './paletteReducers'
 

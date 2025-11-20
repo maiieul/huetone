@@ -71,9 +71,7 @@ export function Header() {
           {overlay.mode !== 'NONE' && (
             <Button
               onClick={() =>
-                setVersusColor(
-                  overlay.versus === 'selected' ? 'white' : 'selected'
-                )
+                setVersusColor(overlay.versus === 'black' ? 'white' : 'black')
               }
             >
               vs. {overlay.versus}
