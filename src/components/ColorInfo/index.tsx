@@ -7,6 +7,8 @@ import { paletteStore } from 'store/palette'
 import { Input } from '../inputs'
 import { ContrastBadgeAPCA, ContrastBadgeWCAG } from './ContrastBadge'
 
+import { chartSettingsStore } from 'store/chartSettings'
+
 export const ColorInfo: FC = () => {
   const { tones } = useStore(paletteStore)
   return (
@@ -26,6 +28,7 @@ const ContrastStack = styled.div`
 const ContrastGroup: FC<{ versusColor: string }> = props => {
   const { color, hueId, toneId } = useStore(selectedStore)
   const { colors, tones, hues } = useStore(paletteStore)
+  const { forceSRGB } = useStore(chartSettingsStore)
   const hex = color.hex
   const css = color.css
   const [colorInput, setColorInput] = useState(props.versusColor)
@@ -64,21 +67,21 @@ const ContrastGroup: FC<{ versusColor: string }> = props => {
         </h4>
       </Heading>
       <ContrastBadgeAPCA
-        background={additionalColor.css}
+        background={forceSRGB ? additionalColor.hex : additionalColor.css}
         backgroundHex={additionalColor.hex}
-        color={css}
+        color={forceSRGB ? hex : css}
         colorHex={hex}
       />
       <ContrastBadgeAPCA
-        background={css}
+        background={forceSRGB ? hex : css}
         backgroundHex={hex}
-        color={additionalColor.css}
+        color={forceSRGB ? additionalColor.hex : additionalColor.css}
         colorHex={additionalColor.hex}
       />
       <ContrastBadgeWCAG
-        background={additionalColor.css}
+        background={forceSRGB ? additionalColor.hex : additionalColor.css}
         backgroundHex={additionalColor.hex}
-        color={css}
+        color={forceSRGB ? hex : css}
         colorHex={hex}
       />
     </Wrapper>

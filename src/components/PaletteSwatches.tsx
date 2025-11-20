@@ -20,6 +20,7 @@ import { useStore } from '@nanostores/react'
 import { colorSpaceStore, paletteStore, setPalette } from 'store/palette'
 import { selectedStore, setSelected } from 'store/currentPosition'
 import { overlayStore, versusColorStore } from 'store/overlay'
+import { chartSettingsStore } from 'store/chartSettings'
 
 const contrast = {
   WCAG: wcagContrast,
@@ -34,6 +35,7 @@ export const PaletteSwatches: FC = () => {
   const overlay = useStore(overlayStore)
   const versusColor = useStore(versusColorStore)
   const colorSpace = useStore(colorSpaceStore)
+  const { forceSRGB } = useStore(chartSettingsStore)
   const bPress = useKeyPress('KeyB')
   const { hues, tones, colors } = palette
   const getCR = useCallback(
@@ -81,7 +83,11 @@ export const PaletteSwatches: FC = () => {
                 onClick={() => setSelected([hueId, toneId])}
                 style={{
                   background: !bPress
-                    ? color.css
+                    ? forceSRGB
+                      ? color.hex
+                      : color.css
+                    : forceSRGB
+                    ? colorSpace.lch2color([color.l, 0, 0]).hex
                     : colorSpace.lch2color([color.l, 0, 0]).css,
                   // @ts-ignore
                   '--contrast': getMostContrast(color.hex, ['#000', '#fff']),

@@ -5,6 +5,7 @@ export type TSettings = {
   showColors: boolean
   showP3: boolean
   showRec2020: boolean
+  forceSRGB: boolean
 }
 
 export const chartSettingsStore = persistentMap<TSettings>(
@@ -13,6 +14,7 @@ export const chartSettingsStore = persistentMap<TSettings>(
     showColors: false,
     showP3: false,
     showRec2020: false,
+    forceSRGB: false,
   },
   { encode: JSON.stringify, decode: JSON.parse }
 )
@@ -21,6 +23,12 @@ export const toggleShowColors = action(
   chartSettingsStore,
   'toggleShowColors',
   store => store.setKey('showColors', !store.get().showColors)
+)
+
+export const toggleForceSRGB = action(
+  chartSettingsStore,
+  'toggleForceSRGB',
+  store => store.setKey('forceSRGB', !store.get().forceSRGB)
 )
 
 export const toggleShowP3 = action(chartSettingsStore, 'toggleShowP3', store =>

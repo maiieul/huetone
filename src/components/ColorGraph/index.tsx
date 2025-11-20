@@ -27,8 +27,8 @@ export function Scale({
   onSelect,
   onColorChange,
 }: ScaleProps) {
-  const { showColors } = useStore(chartSettingsStore)
-  const { ranges } = useStore(colorSpaceStore)
+  const { showColors, forceSRGB } = useStore(chartSettingsStore)
+  const { ranges, lch2color } = useStore(colorSpaceStore)
   if (!colors?.length) return null
   const sectionWidth = width / colors.length
 
@@ -59,7 +59,11 @@ export function Scale({
           <ValueInput
             key={i}
             type="number"
-            color={color.css}
+            color={
+              forceSRGB
+                ? color.hex
+                : color.css
+            }
             $hex={color.hex}
             title={color[channel].toFixed(ranges[channel].precision)}
             min={ranges[channel].min}
@@ -121,7 +125,11 @@ export function Scale({
               style={{
                 // @ts-ignore
                 '--contrast': contrast,
-                '--bg': showColors ? contrast : color.css,
+                '--bg': showColors
+                  ? contrast
+                  : forceSRGB
+                  ? color.hex
+                  : color.css,
               }}
               canvasHeight={height}
               left={sectionWidth * i + sectionWidth / 2}
