@@ -2,11 +2,20 @@ import React, { FC } from 'react'
 import styled from 'styled-components'
 import { apcaContrast, wcagContrast } from 'shared/color'
 
-export const ContrastBadgeAPCA: FC<{ background: string; color: string }> = ({
+type BadgeProps = {
+  background: string
+  backgroundHex: string
+  color: string
+  colorHex: string
+}
+
+export const ContrastBadgeAPCA: FC<BadgeProps> = ({
   background,
+  backgroundHex,
   color,
+  colorHex,
 }) => {
-  const cr = apcaContrast(background, color)
+  const cr = apcaContrast(backgroundHex, colorHex)
   const displayCr = Math.floor(cr * 10) / 10
   return (
     <Wrapper>
@@ -18,11 +27,13 @@ export const ContrastBadgeAPCA: FC<{ background: string; color: string }> = ({
   )
 }
 
-export const ContrastBadgeWCAG: FC<{ background: string; color: string }> = ({
+export const ContrastBadgeWCAG: FC<BadgeProps> = ({
   background,
+  backgroundHex,
   color,
+  colorHex,
 }) => {
-  const cr = wcagContrast(background, color)
+  const cr = wcagContrast(backgroundHex, colorHex)
   const displayCr = Math.floor(cr * 10) / 10
   return (
     <Wrapper>

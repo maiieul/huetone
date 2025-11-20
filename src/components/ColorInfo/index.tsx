@@ -27,16 +27,26 @@ const ContrastGroup: FC<{ versusColor: string }> = props => {
   const { color, hueId, toneId } = useStore(selectedStore)
   const { colors, tones, hues } = useStore(paletteStore)
   const hex = color.hex
+  const css = color.css
   const [colorInput, setColorInput] = useState(props.versusColor)
-  const [additionalColor, setAdditionalColor] = useState(colors[hueId][0].hex)
+  const [additionalColor, setAdditionalColor] = useState({
+    hex: colors[hueId][0].hex,
+    css: colors[hueId][0].css,
+  })
   const name = hues[hueId] + '-' + tones[toneId]
 
   useEffect(() => {
     const i = tones.indexOf(colorInput)
     if (i >= 0) {
-      setAdditionalColor(colors[hueId][i].hex)
+      setAdditionalColor({
+        hex: colors[hueId][i].hex,
+        css: colors[hueId][i].css,
+      })
     } else if (valid(colorInput)) {
-      setAdditionalColor(colorInput)
+      setAdditionalColor({
+        hex: colorInput,
+        css: colorInput,
+      })
     }
   }, [colorInput, colors, hueId, tones])
   return (
@@ -53,9 +63,24 @@ const ContrastGroup: FC<{ versusColor: string }> = props => {
           />
         </h4>
       </Heading>
-      <ContrastBadgeAPCA background={additionalColor} color={hex} />
-      <ContrastBadgeAPCA background={hex} color={additionalColor} />
-      <ContrastBadgeWCAG background={additionalColor} color={hex} />
+      <ContrastBadgeAPCA
+        background={additionalColor.css}
+        backgroundHex={additionalColor.hex}
+        color={css}
+        colorHex={hex}
+      />
+      <ContrastBadgeAPCA
+        background={css}
+        backgroundHex={hex}
+        color={additionalColor.css}
+        colorHex={additionalColor.hex}
+      />
+      <ContrastBadgeWCAG
+        background={additionalColor.css}
+        backgroundHex={additionalColor.hex}
+        color={css}
+        colorHex={hex}
+      />
     </Wrapper>
   )
 }
